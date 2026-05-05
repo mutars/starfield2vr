@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
+add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 project(
   starfield_vr
@@ -15,8 +17,6 @@ set(CMAKE_OPTIMIZE_DEPENDENCIES ON)
 include(GNUInstallDirs)
 include(FetchContent)
 
-# Configure Streamline version before loading vrframework
-set(STREAMLINE_VERSION "v2.4.11" CACHE STRING "Version of NVIDIA Streamline to use")
 set(INVERT_DEPTH_IN_SHADER OFF CACHE BOOL "Invert depth in motion vector correction shader")
 
 set(IMGUI_USER_CONFIG_PATH "${CMAKE_CURRENT_SOURCE_DIR}/imgui/imconfig.hpp")

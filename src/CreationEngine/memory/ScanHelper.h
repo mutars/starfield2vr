@@ -22,7 +22,7 @@ namespace MemoryScan {
         if(static_offset > 0) {
             auto offset = val - (uintptr_t)mod;
             if(offset != static_offset) {
-                spdlog::info("VTable offset does not match static offset for id={} offset={:x} reference={:x}", hook_name, offset, static_offset);
+                spdlog::warn("VTable offset mismatch id={}: scanned={:x} static={:x}", hook_name, offset, static_offset);
             }
         }
 #else
@@ -43,7 +43,7 @@ namespace MemoryScan {
         if(static_offset > 0) {
             auto offset = val - (uintptr_t)mod;
             if(offset != static_offset) {
-                spdlog::info("FuncRelocation offset does not match static offset for id={}", a_id);
+                spdlog::warn("FuncRelocation offset mismatch id={}: scanned={:x} static={:x}", a_id, offset, static_offset);
             }
         }
 #else
@@ -68,7 +68,7 @@ namespace MemoryScan {
         if(static_offset > 0) {
             auto offset = val - (uintptr_t)mod;
             if(offset != static_offset) {
-                spdlog::info("AsmCodeRelocation offset does not match static offset for id={}", a_id);
+                spdlog::warn("InstructionRelocation offset mismatch id={}: scanned={:x} static={:x}", a_id, offset, static_offset);
             }
         }
 #else
@@ -79,5 +79,5 @@ namespace MemoryScan {
         }
 #endif
         return val;
-    };
+    };    
 }

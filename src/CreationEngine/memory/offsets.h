@@ -310,8 +310,18 @@ namespace Steam::MemoryOffsets
     inline uintptr_t GlobalPlayerRef()
     {
         // ID 922868
-        auto       pattern     = "48 8B 05 ? ? ? ? F6 80 22 11 00 00 08 74 19";
-        static auto address_ptr = InstructionRelocation(pattern, 3, 7, OffsetsTable::GetOffset(922868), 922868);
+        static const char* patterns[] = {
+            "48 8B 05 ? ? ? ? F6 80 2A 11 00 00 08 74 ?",
+            "48 8B 05 ? ? ? ? F6 80 29 11 00 00 08 74 ?",
+            "48 8B 05 ? ? ? ? F6 80 64 07 00 00 08 74 ?",
+        };
+        static auto address_ptr = []() -> uintptr_t {
+            for (auto pattern : patterns) {
+                auto result = InstructionRelocation(pattern, 3, 7, OffsetsTable::GetOffset(922868), 922868);
+                if (result) return result;
+            }
+            return 0;
+        }();
         return address_ptr;
     }
 } // namespace Steam::MemoryOffsets
