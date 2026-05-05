@@ -1,6 +1,4 @@
 cmake_minimum_required(VERSION 3.27)
-add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 project(
   starfield_vr
@@ -60,6 +58,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_compile_definitions(common INTERFACE DISABLE_WINDOW_SIZE_FIXES)
 target_compile_definitions(common INTERFACE HOOK_XINPUT)
 target_compile_definitions(common INTERFACE HOOK_DX12_FIRST)
+target_compile_definitions(common INTERFACE GLM_ENABLE_EXPERIMENTAL)
 
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 

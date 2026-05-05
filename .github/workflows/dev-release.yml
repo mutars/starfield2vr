@@ -90,10 +90,3 @@ jobs:
           name: ${{ matrix.preset }}-openvr-${{ steps.get_version.outputs.version }}
           path: ${{github.workspace}}/package-openvr/*
           if-no-files-found: error
-
-      - name: Upload debug symbols
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.preset }}-${{ steps.get_version.outputs.version }}-symbols
-          path: ${{github.workspace}}/symbols/*
-          if-no-files-found: error
