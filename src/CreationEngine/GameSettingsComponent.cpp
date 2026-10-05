@@ -1,4 +1,5 @@
 #include "GameSettingsComponent.h"
+#include "StereoViewModule.h"
 #include "CreationEngineRendererModule.h"
 #include "CreationEngineSettings.h"
 #include <mods/VR.hpp>
@@ -37,6 +38,10 @@ void GameSettingsComponent::on_device_reset()
         if(!m_override_weapon_fov->value()) {
             creation_engine_settings->set_setting("fFPGeometryFOV:Camera", CreationEngineSettings::SettingType::kINISetting, vr->get_runtime()->diagonal_fov);
         }
+        // Depth of field blurs whatever is close to the eyes in a headset.
+        const bool dof_off = creation_engine_settings->set_setting("bDepthOfFieldEnable:Display", CreationEngineSettings::SettingType::kINIPrefSetting, false) ||
+                             creation_engine_settings->set_setting("bDepthOfFieldEnable:Display", CreationEngineSettings::SettingType::kINISetting, false);
+        spdlog::info("Depth of field {}", dof_off ? "disabled" : "setting not found");
     };
 }
 

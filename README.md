@@ -1,6 +1,6 @@
-# starfield2vr
+# SFVR
 
-starfield2vr is a VR modding project for Starfield that aims to deliver immersive gameplay. This project is based on [PrayDog's REFramework](https://github.com/praydog/REFramework/).
+SFVR is a VR mod for Starfield with motion controls, a full body, and comfort options built into the game's own settings menu. It is a fork of [mutars' starfield2vr](https://github.com/mutars/starfield2vr), built on a framework derived from [praydog's REFramework](https://github.com/praydog/REFramework/).
 
 ## Features
 
@@ -23,13 +23,13 @@ starfield2vr is a VR modding project for Starfield that aims to deliver immersiv
 ## Installation
 
 ### Steam
-Copy content from archive `starfield2vr-{openxr/openvr}-vX.X.X.zip` into:
+Copy content from archive `SFVR-{openxr/openvr}-vX.X.X.zip` into:
 ```
 C:\Program Files (x86)\Steam\steamapps\common\Starfield
 ```
 
 ### Gamepass
-Copy content from archive `starfield2vr-{openxr/openvr}-vX.X.X.zip` into:
+Copy content from archive `SFVR-{openxr/openvr}-vX.X.X.zip` into:
 ```
 C:\XboxGames\Starfield\Content
 ```
@@ -78,3 +78,14 @@ The in-game overlay provides configurable options:
 
 - [Starfield VR Setup Guide by Good Samaritan](https://youtu.be/UKt2utvotxA?si=2EJMFvhelMTlFuHG)
 - [Starfield VR Tutorial by ParadiseDecay](https://youtu.be/cJ9ccj92xNM?t=475&si=15dW7ORzva_0O0GM)
+
+## Credits
+
+- **mutars**: [starfield2vr](https://github.com/mutars/starfield2vr), the VR mod SFVR is forked from.
+- **praydog**: [REFramework](https://github.com/praydog/REFramework/) and [UEVR](https://github.com/praydog/UEVR), the origin of the VR framework this mod is built on.
+- **rollingrock** and contributors: [FRIK](https://github.com/rollingrock/Fallout-4-VR-Body), whose arm IK this mod adapts.
+- **Bruno Catani**: [ROCK](https://github.com/brunocatani/ROCK), the reference for hand and weapon interaction.
+
+## License
+
+GPL-3.0-only; see [LICENSE](LICENSE). Code from the original starfield2vr project remains available under its MIT license ([LICENSES/MIT-starfield2vr.txt](LICENSES/MIT-starfield2vr.txt)).

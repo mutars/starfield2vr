@@ -84,6 +84,13 @@
       }
     },
     {
+      "name": "build-release-msvc-sfse",
+      "inherits": ["build-release-msvc"],
+      "cacheVariables": {
+        "HOOK_METHOD": "sfse"
+      }
+    },
+    {
       "name": "build-debug-msvc",
       "inherits": [ "base", "msvc" ],
       "cacheVariables": {
@@ -139,6 +146,12 @@
       "displayName": "1. Release (MSVC)",
       "configurePreset": "build-release-msvc",
       "description": "Optimized release build with debug info."
+    },
+    {
+      "name": "release-msvc-sfse",
+      "displayName": "1b. Release SFSE plugin (MSVC)",
+      "configurePreset": "build-release-msvc-sfse",
+      "description": "Release build as an SFSE plugin (Data/SFSE/Plugins/SFVR.dll) for MO2/Nexus."
     },
     {
       "name": "debug-msvc",

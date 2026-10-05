@@ -181,21 +181,6 @@ namespace Steam::MemoryOffsets
             return address_ptr;
         }
 
-        inline uintptr_t OnUpdateConstantBufferView()
-        {
-            // ID 142800
-            auto pattern     = "48 8B C4 48 89 58 10 48 89 70 18 57 41 56 41 57 48 81 EC 40";
-            static auto address_ptr = FuncRelocation(pattern, OffsetsTable::GetOffset(142800), 142800);
-            return address_ptr;
-        }
-
-        inline uintptr_t OnTaaVFunc7()
-        {
-            // ID 497712
-            auto        pattern     = ".?AVTemporalAA_idTech7RenderPass@CreationRendererPrivate@@";
-            static auto addr = ((uintptr_t*)VTable("CreationRendererPrivate::TemporalAA_idTech7RenderPass::vftable[7]", pattern, OffsetsTable::GetOffset(497712)))[7];
-            return addr;
-        }
     } // namespace CreationRenderer
 
     namespace Nvidia {

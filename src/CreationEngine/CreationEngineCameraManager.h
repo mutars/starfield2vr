@@ -89,6 +89,13 @@ public:
     }
 
     void                          UpdateWorldCamera();
+    static void                   SnapshotAimPose();
+    // Muzzle of the weapon held by the shown body, or null when the body is not driving the weapon.
+    static RE::NiAVObject*        GetBodyMuzzle();
+    // Aim direction (game world) the held weapon was posed along this frame, if any.
+    static bool                   GetBodyAimForward(float out[3]);
+    // The player fired: the weapon's pose in the first-person rig is sampled as its firing grip.
+    static void                   NotifyPlayerFired();
     static void onNiAVObjectUpdateWorld(RE::NiAVObject* obj, RE::NiUpdateData* a_data);
     void onScaleformSetViewPort(uintptr_t* thisMovie, Scaleform::Gfx::Viewport* viewport);
 

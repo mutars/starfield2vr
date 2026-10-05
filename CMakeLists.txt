@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.27)
 
 project(
-  starfield_vr
+  sfvr
   VERSION 1.0.0
   LANGUAGES C CXX
 )
@@ -35,6 +35,17 @@ endif()
 add_library(common INTERFACE)
 target_link_libraries(vr_framework PRIVATE common)
 
+# Write vr_log.txt in non-debug builds too (vrframework otherwise uses a null logger).
+option(VR_LOGGING "Enable vr_log.txt in release builds" ON)
+if(VR_LOGGING)
+  target_compile_definitions(common INTERFACE VR_ENABLE_LOGGING)
+endif()
+
+option(VR_DEV_OVERLAY "Enable the developer ImGui overlay" OFF)
+if(VR_DEV_OVERLAY)
+  target_compile_definitions(common INTERFACE VR_DEV_OVERLAY)
+endif()
+
 
 file(
   GLOB_RECURSE
@@ -61,6 +72,13 @@ target_compile_definitions(common INTERFACE HOOK_DX12_FIRST)
 target_compile_definitions(common INTERFACE GLM_ENABLE_EXPERIMENTAL)
 
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
+# Pose and IK math relies on NaN/infinity checks, which /fp:fast may remove.
+set_source_files_properties(
+  src/CreationEngine/CreationEngineCameraManager.cpp
+  src/CreationEngine/vr/TrackingSpace.cpp
+  src/CreationEngine/body/BodyIK.cpp
+  PROPERTIES COMPILE_OPTIONS "/fp:precise")
 
 target_link_libraries("${PROJECT_NAME}" PUBLIC common vr_framework::vr_framework)
 target_link_libraries("${PROJECT_NAME}" PUBLIC ViGEmClient)
@@ -113,6 +131,9 @@ elseif(HOOK_METHOD STREQUAL "PHYSX")
   target_compile_definitions(common INTERFACE USE_PHYSX_HOOK)
 elseif(HOOK_METHOD STREQUAL "inject")
   set(OUTPUT_NAME "vrmod")
+elseif(HOOK_METHOD STREQUAL "sfse")
+  set(OUTPUT_NAME "SFVR")
+  target_compile_definitions(common INTERFACE USE_SFSE_PLUGIN)
 endif()
 
 if(XBOX_STORE)
@@ -153,19 +174,34 @@ add_custom_command(
     ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_SOURCE_DIR}/artifact/Mod${BUILD_NAME}/sfvr
 )
 
-if(XBOX_STORE)
+# SFSE builds lay out a mod folder (relative to Data) ready to zip for MO2/Nexus.
+if(HOOK_METHOD STREQUAL "sfse")
+  set(SFSE_PLUGIN_SUBDIR "SFSE/Plugins")
   add_custom_command(
-          TARGET ${PROJECT_NAME}
-          POST_BUILD
-          COMMAND
-          ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> "C:\\XboxGames\\Starfield\\Content\\dxgi.dll"
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND
+      ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/mod/${SFSE_PLUGIN_SUBDIR}
+    COMMAND
+      ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> $<TARGET_PDB_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_BINARY_DIR}/mod/${SFSE_PLUGIN_SUBDIR}
   )
-else ()
+endif()
+
+# Optional: copy the built DLL into a game install, e.g. -DGAME_DIR="C:/XboxGames/Starfield/Content".
+set(GAME_DIR "" CACHE PATH "Starfield install to copy the built DLL into after each build")
+if(GAME_DIR)
+  if(HOOK_METHOD STREQUAL "sfse")
+    set(GAME_DEPLOY_DIR "${GAME_DIR}/Data/${SFSE_PLUGIN_SUBDIR}")
+  else()
+    set(GAME_DEPLOY_DIR "${GAME_DIR}")
+  endif()
   add_custom_command(
-          TARGET ${PROJECT_NAME}
-          POST_BUILD
-          COMMAND
-          ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Starfield\\$<TARGET_FILE_NAME:${PROJECT_NAME}>"
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND
+      ${CMAKE_COMMAND} -E make_directory "${GAME_DEPLOY_DIR}"
+    COMMAND
+      ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> "${GAME_DEPLOY_DIR}"
   )
 endif()
 

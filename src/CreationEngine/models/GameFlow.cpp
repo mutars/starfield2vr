@@ -16,7 +16,39 @@ namespace GameFlow
             {       "Interface/MonocleMenu_LRG.swf"_DJB,   { 0.6f, 100 } }
     };
 
+    // Recenter after loading screens; the startup recenter can fire before the headset is worn.
+    namespace
+    {
+        constexpr int kFramesAfterLoadingToRecenter = 30;
+
+        bool loading_seen_this_frame{false};
+        bool loading_pending{false};
+        int  frames_since_loading{0};
+
+        // The ship HUD is only drawn while piloting.
+        bool ship_hud_seen_this_frame{false};
+        std::atomic<bool> ship_hud_last_frame{false};
+
+        void update_loading_recenter()
+        {
+            if (loading_seen_this_frame) {
+                loading_pending      = true;
+                frames_since_loading = 0;
+            } else if (loading_pending && ++frames_since_loading >= kFramesAfterLoadingToRecenter) {
+                loading_pending = false;
+                if (gStore.internalSettings.recenterAfterLoading) {
+                    spdlog::info("[GameFlow] Loading screen ended, requesting recenter");
+                    vr->get_runtime()->wants_reset_origin = true;
+                }
+            }
+            loading_seen_this_frame = false;
+        }
+    }
+
     void resetGameState() {
+        update_loading_recenter();
+        ship_hud_last_frame.store(ship_hud_seen_this_frame);
+        ship_hud_seen_this_frame = false;
         gStore.debugData.ui_parts.clear();
         gState.uiData.modulino++;
         gState.uiData.rendered_menus_count[gState.uiData.modulino % 2] = 0;
@@ -24,10 +56,12 @@ namespace GameFlow
 
     void renderMenu(std::string_view menuNameHash) {
         switch (djb2Hash(menuNameHash.data())) {
-        case "Interface/HUDMenu.gfx"_DJB:
-        case "Interface/HUDMenu_LRG.gfx"_DJB:
         case "Interface/SpaceshipHudMenu.swf"_DJB:
         case "Interface/SpaceshipHudMenu_LRG.swf"_DJB:
+            ship_hud_seen_this_frame = true;
+            [[fallthrough]];
+        case "Interface/HUDMenu.gfx"_DJB:
+        case "Interface/HUDMenu_LRG.gfx"_DJB:
             //            case "Interface/HUDMessagesMenu.gfx"_DJB:
         case "Interface/ScopeMenu.swf"_DJB:
         case "Interface/ScopeMenu_LRG.swf"_DJB:
@@ -67,8 +101,13 @@ namespace GameFlow
         case "Interface/DataMenu_LRG.swf"_DJB:
         case "Interface/InventoryMenu.swf"_DJB:
         case "Interface/InventoryMenu_LRG.swf"_DJB:
+            gState.uiData.rendered_menus_count[gState.uiData.modulino % 2]++;
+            break;
         case "Interface/LoadingMenu.swf"_DJB:
         case "Interface/LoadingMenu_LRG.swf"_DJB:
+            loading_seen_this_frame = true;
+            gState.uiData.rendered_menus_count[gState.uiData.modulino % 2]++;
+            break;
         case "Interface/PauseMenu.swf"_DJB:
         case "Interface/PauseMenu_LRG.swf"_DJB:
         case "Interface/GalaxyStarMapMenu.swf"_DJB:
@@ -101,6 +140,10 @@ namespace GameFlow
 
     bool isShowingMenu() {
         return gState.uiData.rendered_menus_count[(gState.uiData.modulino + 1) % 2] >= 0;
+    }
+
+    bool isPilotingShip() {
+        return ship_hud_last_frame.load();
     }
 
     bool isAimingDownSights() {

@@ -44,4 +44,5 @@ public:
 private:
     static RE::Setting* get_setting(std::string_view id, SettingType type);
     friend class GameSettingsComponent;
+    friend class StereoViewModule;
 };

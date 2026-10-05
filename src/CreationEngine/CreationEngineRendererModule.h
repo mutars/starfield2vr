@@ -148,26 +148,9 @@ public:
 
     [[nodiscard]] inline RE::CreationEngineSettings* GetCreationEngineSettings() const { return *m_creationEngineSettings; }
 
-    void SwapBuffer(ID3D12GraphicsCommandList* cmdList, ID3D12Resource* originalBuffer, int index, int sourceSlot, int destSlot);
-
-    inline static void CopyResource(ID3D12GraphicsCommandList* cmdList, ID3D12Resource* pSrcResource, ID3D12Resource* pDstResource, D3D12_RESOURCE_STATES srcState,
-                                    D3D12_RESOURCE_STATES dstState)
-    {
-        D3D12_RESOURCE_BARRIER barriers[2] = { CD3DX12_RESOURCE_BARRIER::Transition(pSrcResource, srcState, D3D12_RESOURCE_STATE_COPY_SOURCE),
-                                               CD3DX12_RESOURCE_BARRIER::Transition(pDstResource, dstState, D3D12_RESOURCE_STATE_COPY_DEST) };
-        cmdList->ResourceBarrier(2, barriers);
-        cmdList->CopyResource(pDstResource, pSrcResource);
-        barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
-        barriers[0].Transition.StateAfter  = srcState;
-        barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-        barriers[1].Transition.StateAfter  = dstState;
-        cmdList->ResourceBarrier(2, barriers);
-    }
-
     __int64   onRenderGraphRenderStart(RE::CreationRendererPrivate::RenderGraph* pGraph, RE::CreationRendererPrivate::RenderGraphData* pRenderGraphData, __int64 i1, __int64 i2);
 //    __int64   onRenderFrameStart(void* pVoid, __int64 i, __int64 i1, __int64 i2);
     void      SetWindowSize(int width, int height);
-    uintptr_t onUpdateConstantBufferView(uint8_t i, uint8_t i1, uintptr_t i2, uintptr_t i3, uintptr_t i4, double d, char i5, RE::RenderPassConstantBufferView* pView);
 
 private:
     CreationEngineRendererModule()  = default;
@@ -175,24 +158,16 @@ private:
 
     std::unique_ptr<FunctionHook> m_onRenderGraphRenderStartHook{};
     std::unique_ptr<FunctionHook> m_onRenderFrameStartHook{};
-    std::unique_ptr<FunctionHook> m_onUpdateConstantBufferViewHook{};
-    std::unique_ptr<FunctionHook> taa_vfunc7_hook{};
     safetyhook::InlineHook m_worldTick_hook{};
     safetyhook::InlineHook m_setReflexMarkerInternalHook{};
 
 
     RE::CreationRendererPrivate::RenderPass* m_startFramePass{ nullptr };
-    RE::CreationRendererPrivate::RenderPass* m_endFramePass{ nullptr };
-    RE::CreationRendererPrivate::RenderPass* m_framePass{ nullptr };
 
     RE::CreationEngineSettings**          m_creationEngineSettings{ nullptr };
     std::mutex                            m_last_resolution_mutex{};
     std::chrono::steady_clock::time_point m_last_resolution_sync{};
 
-    ComPtr<ID3D12Resource> m_pastBuffer[12][4];
-
-    static uintptr_t onTaaPass(RE::CreationRendererPrivate::RenderPass* pPass, RE::CreationRendererPrivate::RenderGraphData* i, RE::CreationRendererPrivate::RenderPassData* i1);
     void             RenderGraphStart(RE::CreationRendererPrivate::RenderGraph* pGraph, RE::CreationRendererPrivate::RenderGraphData* pRenderGraphData, bool before);
-    static bool      ValidateResource(ID3D12Resource* source, ComPtr<ID3D12Resource> pPtr[4]);
     static uintptr_t setReflexMarkerInternal(uintptr_t rcx, uint32_t marker, uint32_t oldFrameIndex);
 };
