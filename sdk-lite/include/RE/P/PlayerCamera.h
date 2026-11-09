@@ -119,7 +119,8 @@ namespace RE
 		[[nodiscard]] inline bool QCameraEquals(CameraState a_cameraState) const {
             auto states = &this->pFirstPersonModeState;
             auto state = states[static_cast<std::size_t>(a_cameraState)];
-            return (uintptr_t ) state == (uintptr_t )this->currentState;
+            // both are null in the main menu; null == null must not count as "in this state"
+            return state && (uintptr_t ) state == (uintptr_t )this->currentState;
         }
 	};
 	static_assert(offsetof(PlayerCamera, pFirstPersonModeState) == 0x188);
